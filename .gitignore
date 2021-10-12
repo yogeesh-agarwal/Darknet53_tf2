@@ -1,0 +1,4 @@
+/data/*.pickle
+/data/*.npy
+/data/neg_samples/*
+/saved_models/
