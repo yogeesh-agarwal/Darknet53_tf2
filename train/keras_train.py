@@ -1,5 +1,6 @@
 import os
 import sys
+import pdb
 import utils
 import numpy as np
 import tensorflow as tf
@@ -18,6 +19,11 @@ def gen_callbacks(tb_ld , cp_path):
                                                              save_weights_only = True)
     return [tensorboard_callback , checkpoint_callback]
 
+def get_epoch_number(latest_chkpnt):
+    chkpnt_name = latest_chkpnt.split(".ckpt")[0]
+    epoch_number = chkpnt_name.split("-")[1]
+    return int(epoch_number)
+
 def train(input_size ,
           batch_size,
           num_epochs,
@@ -33,10 +39,9 @@ def train(input_size ,
           save_dir,
           logs_dir):
 
-    learning_rate = 0.001
     train_summary_writer = tf.summary.create_file_writer(logs_dir)
     tf.summary.experimental.set_step(0)
-    callbacks = gen_callbacks(logs_dir+"/loss" , save_dir+"cp.ckpt")
+    callbacks = gen_callbacks(logs_dir+"/loss" , save_dir+"cp-{epoch:04d}.ckpt")
     train_data_generator = DataGenerator(input_size ,
                                    batch_size,
                                    data_path ,
@@ -55,26 +60,30 @@ def train(input_size ,
                                    is_augment ,
                                    instances = 250,
                                    shuffle = False)
-                                   
+
     classifier = Darknet53(num_classes , train_summary_writer)
+    epoch_number = 0
     if not os.listdir(save_dir):
         print("No trained model found , starting from scratch")
     else:
-        print("partially trained model found , resuming the training")
-        classifier.load_weights(save_dir+"cp.ckpt")
+        latest_chkpnt = tf.train.latest_checkpoint(save_dir)
+        classifier.load_weights(latest_chkpnt)
+        epoch_number = get_epoch_number(latest_chkpnt)
+        print("partially trained model found , resuming the training for epoch : " , epoch_number)
 
     classifier.compile(optimizer = tf.keras.optimizers.Adam(learning_rate=1e-3))
     classifier.fit(train_data_generator,
                    epochs = num_epochs,
                    use_multiprocessing = True,
                    validation_data = val_data_generator,
+                   initial_epoch = epoch_number,
                    callbacks = callbacks)
     print("Training Completed")
 
 def main():
     input_size = 256
     batch_size = 8
-    num_epochs = 1
+    num_epochs = 200
     train_data_path = "/home/yogeesh/yogeesh/datasets/face_detection/wider face/WIDER_train/WIDER_train/images/"
     val_data_path = "/home/yogeesh/yogeesh/datasets/face_detection/wider face/WIDER_val/WIDER_val/images/"
     pos_train_file = "../data/wider_train_file.pickle"
