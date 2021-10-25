@@ -2,3 +2,4 @@
 /data/*.npy
 /data/neg_samples/*
 /saved_models/
+/extractor/extracted_weights/*pickle

@@ -1,0 +1,13 @@
+conv_b1
+conv_b2
+rb_1
+convb3
+rb2_1 , rb_2
+conv_b4
+rb3_1 , rb3_2 ,rb3_3 ,rb3_4 ,rb3_5 ,rb3_6 ,rb3_7 ,rb3_8
+conv_b5
+rb4_1 , rb4_2 ,rb4_3 ,rb4_4 ,rb4_5 ,rb4_6 ,rb4_7 ,rb4_8
+conv_b6
+rb5_1 , rb5_2 ,rb5_3 ,rb5_4
+avg_pool
+dense_layer
