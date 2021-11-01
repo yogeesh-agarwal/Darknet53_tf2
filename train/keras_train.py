@@ -83,7 +83,7 @@ def train(input_size ,
 def main():
     input_size = 256
     batch_size = 8
-    num_epochs = 200
+    num_epochs = 500
     train_data_path = "/home/yogeesh/yogeesh/datasets/face_detection/wider face/WIDER_train/WIDER_train/images/"
     val_data_path = "/home/yogeesh/yogeesh/datasets/face_detection/wider face/WIDER_val/WIDER_val/images/"
     pos_train_file = "../data/wider_train_file.pickle"

@@ -12,6 +12,7 @@ class ConvBlock(tf.keras.layers.Layer):
         self.pad_beg , self.pad_end = 0 , 0
         self.strides = 1
         self.padding = "SAME"
+        self.downsample = downsample
         if downsample:
             self.strides = 2
             self.padding = "VALID"
@@ -32,6 +33,8 @@ class ConvBlock(tf.keras.layers.Layer):
         self.leaky_Relu = tf.keras.layers.LeakyReLU(alpha = alpha)
 
     def call(self , input , training = False):
+        if self.downsample:
+            input = self.padded_input(input)
         conv_out = self.conv_layer(input)
         bn_out = self.bn_layer(conv_out , training = training)
         lr_out = self.leaky_Relu(bn_out)

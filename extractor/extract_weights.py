@@ -1,5 +1,6 @@
 import os
 import pickle
+import numpy as np
 import tensorflow as tf
 from tensorflow.python import pywrap_tensorflow
 from tensorflow.python.training import py_checkpoint_reader
@@ -42,11 +43,11 @@ def get_layer_var_names(conv_index = -1 , sub_index = -1 , residual_blk_index = 
             bn_layer_names.append("residual_blocks_{}/{}/residual_block1/bn_layer/".format(residual_blk_index , sub_index))
             bn_layer_names.append("residual_blocks_{}/{}/residual_block2/bn_layer/".format(residual_blk_index , sub_index))
 
-    elif conv_index > 1:
+    elif conv_index >= 1:
         conv_layer_names.append("conv_b{}/conv_layer/kernel".format(conv_index))
         bn_layer_names.append("conv_b{}/bn_layer/".format(conv_index))
 
-    features = ["beta" , "gamma" , "moving_mean" , "moving_variance"]
+    features = ["gamma" , "beta" , "moving_mean" , "moving_variance"]
     for i in range(len(bn_layer_names)):
         var_names = []
         bn_layer_name = bn_layer_names[i]
@@ -65,10 +66,11 @@ def get_layer_weights(conv_layer_names , bn_layer_names , conv_layers , bn_layer
     for conv_layer_name , bn_layer_name in zip(conv_layer_names , bn_layer_names):
         conv_dict["conv_{}".format(layer_index + index)] = conv_layers[conv_layer_name]
         bn_vars = {}
-        features = ["beta" , "gamma" , "moving_mean" , "moving_variance"]
+        features = ["gamma" , "beta" , "mean" , "variance"]
         for i in range(4):
             bn_vars[features[i]] = bn_layers[bn_layer_name[i]]
-        bn_dict["bn_{}".format(layer_index + index)] = bn_vars
+        bn_dict["conv_{}".format(layer_index + index)] = bn_vars
+        index += 1
 
 def get_block_weights(conv_dict , bn_dict, conv_layers , bn_layers , layer_index , residual_blk_index = 0 , count = 0 , conv_blk_index = 0):
     if conv_blk_index == -1 and residual_blk_index == -1:
